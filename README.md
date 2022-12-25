@@ -1,1 +1,1 @@
-The concept of this project is to make your job easier to create 2d games
+The concept of this project is to make your job easier to create simple 2d games
