@@ -1,5 +1,5 @@
 import pygame
-import pygTools
+import pygameTools as pgTools
 import random
 
 pygame.init()
@@ -10,7 +10,7 @@ display = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
 target_fps = 100
 
-keyInputHandler = pygTools.KeyInputHandler()
+keyInputHandler = pgTools.KeyInputHandler()
 
 player = pygame.Rect(0,0,10,15)
 playerColor = (0,0,0)
@@ -27,14 +27,14 @@ def createRects():
     for y in range(0, HEIGHT, rectSize[1]):
         for x in range(0, WIDTH, rectSize[0]):
 
-            if not pygTools.randomChance(1, 100000):
+            if not pgTools.randomChance(1, 100000):
                 rects.append(pygame.Rect(x, y, *rectSize))
                 if rects[-1].colliderect(player):
                     rects.pop(-1)
     
     rectsColors = {}
     for rect in rects:
-        rectsColors[repr(rect)] = [pygTools.getRandomRGB(), 2]
+        rectsColors[repr(rect)] = [pgTools.getRandomRGB(), 2]
 
     return rects, rectsColors
 
@@ -55,7 +55,7 @@ while running:
     keyInputHandler.update()
 
     if keyInputHandler.mouseKeyPressed(0):
-        rectsColliding = pygTools.getCollidingObjects([*mousePos, 1, 1], rects)
+        rectsColliding = pgTools.getCollidingRectangles([*mousePos, 1, 1], rects)
         if len(rectsColliding) != 0:
             for rect in rectsColliding:
                 rects.remove(rect)
@@ -68,22 +68,22 @@ while running:
         rects, rectsColors = createRects()
     
     if keyInputHandler.keyPressed(pygame.K_w):
-        pygTools.moveY(player, -playerVelocity * dt, rects)
+        pgTools.moveY(player, -playerVelocity * dt, rects)
     if keyInputHandler.keyPressed(pygame.K_s):
-        pygTools.moveY(player, playerVelocity * dt, rects)
+        pgTools.moveY(player, playerVelocity * dt, rects)
     
     if keyInputHandler.keyPressed(pygame.K_a):
-        pygTools.moveX(player, -playerVelocity * dt, rects)
+        pgTools.moveX(player, -playerVelocity * dt, rects)
     if keyInputHandler.keyPressed(pygame.K_d):
-        pygTools.moveX(player, playerVelocity * dt, rects)
+        pgTools.moveX(player, playerVelocity * dt, rects)
     
-    playerColor = pygTools.rainbowEffectUpdate(playerColor, 1)
+    playerColor = pgTools.rainbowEffectUpdate(playerColor, 1)
     
     pygame.draw.rect(display, playerColor, player)
 
     for rect in rects:
         rectRepresentation = repr(rect)
-        rectsColors[rectRepresentation] = [*pygTools.rainbowEffectUpdate(rectsColors[rectRepresentation][:-1], rectsColors[rectRepresentation][-1]), rectsColors[rectRepresentation][-1]]
+        rectsColors[rectRepresentation] = [*pgTools.rainbowEffectUpdate(rectsColors[rectRepresentation][:-1], rectsColors[rectRepresentation][-1]), rectsColors[rectRepresentation][-1]]
         
         pygame.draw.rect(display, rectsColors[rectRepresentation][:-1], rect)
 
