@@ -1,5 +1,5 @@
 import pygame
-import pygameTools as pgTools
+import suadoPygameTools as pgTools
 import random
 
 pygame.init()
