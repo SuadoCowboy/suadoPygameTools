@@ -3,7 +3,7 @@
 (A) Create a drawing mask class or function
 (A) Maybe change collision handling with pygame.mask thing
 
-(A) mesh object that can have multiple forms(MOST PERFORMANCE PLEASE)
+(A) mesh class that can have multiple forms(MOST PERFORMANCE PLEASE)
 
 zoom system #future
 tilemap creator(another project maybe) #future
