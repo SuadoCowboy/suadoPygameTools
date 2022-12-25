@@ -1,19 +1,16 @@
 import pygame
 import random
 
-# Made by Suado Cowboy
-# Feel free to "steal" this code and change it the way you prefer
-
-def hasMethod(classObj: object, method: str):
-    if method in classObj.__dir__() and str(type(classObj.__getattribute__(method))) == '<class \'method\'>':
+def hasMethod(classObject: object, method: str):
+    if method in classObject.__dir__() and str(type(classObject.__getattribute__(method))) == '<class \'method\'>':
         return True
     return False
 
-def getCollidingObjects(rect: pygame.Rect, objects: list, ignoreRects: list=None):
+def getCollidingRectangles(rect: pygame.Rect, rectangles: list, ignoreRects: list=None):
     """
-    returns a list of objects that are colliding with the rect;
+    returns a list of rectangles that are colliding with the rect;
 
-    ignoreObjects appends rect parameter to it automatically.
+    ignoreRectangles appends rect parameter to it automatically.
     """
     if type(rect) != pygame.Rect: # tries to make a rectangle if it's only the rect arguments
         rect = pygame.Rect(*rect)
@@ -24,17 +21,17 @@ def getCollidingObjects(rect: pygame.Rect, objects: list, ignoreRects: list=None
     ignoreRects.append(rect)
     
     collideList = []
-    for object in objects:
-        collideList.append(object)
+    for rectangle in rectangles:
+        collideList.append(rectangle)
     
     indexes = rect.collidelistall(collideList)
     
     output = []
     for index in indexes:
-        if objects[index] in ignoreRects:
+        if rectangles[index] in ignoreRects:
             continue
         
-        output.append(objects[index])
+        output.append(rectangles[index])
     
     return output
 
@@ -51,16 +48,16 @@ def moveX(rectangle: pygame.Rect, xVelocity: int | float, rectangles: list[pygam
     Function to move without considerating gravity.
 
     this function iterates through each pixel until it reaches the final x position.
-    if it collides with an object, it stops on the past pixel
+    if it collides with an rectangle, it stops on the past pixel
 
-    Returns False if collided with an object
+    Returns False if collided with an rectangle
     """
 
     xPlus = 1 if xVelocity > 0 else -1
 
     # collision checking (if statements can be slow, maybe try a better system on future)
     for x in range(int(rectangle.x), int(rectangle.x+xVelocity), xPlus):
-        rectanglesColliding = getCollidingObjects([x+xPlus, rectangle.y, rectangle.width, rectangle.height], rectangles, ignoreRectangles)
+        rectanglesColliding = getCollidingRectangles([x+xPlus, rectangle.y, rectangle.width, rectangle.height], rectangles, ignoreRectangles)
         if len(rectanglesColliding) != 0:
             rectangle.x = x
             return False
@@ -73,16 +70,16 @@ def moveY(rectangle: pygame.Rect, yVelocity: int | float, rectangles: list[pygam
     Function to move without considerating gravity.
 
     this function iterates through each pixel until it reaches the final y position.
-    if it collides with an object, it stops on the past pixel
+    if it collides with an rectangle, it stops on the past pixel
 
-    Returns False if collided with an object
+    Returns False if collided with an rectangle
     """
     
     yPlus = 1 if yVelocity > 0 else -1
 
     # collision checking (if statements can be slow, maybe try a better system on future)
     for y in range(int(rectangle.y), int(rectangle.y+yVelocity), yPlus):
-        rectanglesColliding = getCollidingObjects([rectangle.x, y+yPlus, rectangle.width,rectangle.height], rectangles, ignoreRectangles)
+        rectanglesColliding = getCollidingRectangles([rectangle.x, y+yPlus, rectangle.width,rectangle.height], rectangles, ignoreRectangles)
         if len(rectanglesColliding) != 0:
             rectangle.y = y
             return False
@@ -95,9 +92,9 @@ def moveTo(rectangle: pygame.Rect, pos: tuple[int, int], rectangles: list[pygame
     Function to move without considerating gravity.
 
     this function iterates through each pixel until it reaches the final position.
-    if it collides with an object, it stops on the past pixel
+    if it collides with an rectangle, it stops on the past pixel
 
-    Returns False if collided with an object
+    Returns False if collided with an rectangle
     """
     
     if ignoreRectangles == None:
@@ -215,13 +212,15 @@ class KeyInputHandler:
         return self.mouseKeysReleased[key]
 
 # to make a zoom system I guess it needs to change rect size and image size too...
-# pygame.rect.inflate is the correcct function for zooming
+# pygame.rect.inflate is a good function to see if we can make a zoom system
 class Camera:
     def __init__(self, x: int, y: int, width: int, height: int, viewportX: int, viewportY: int, viewportBackgroundColor: tuple=(0,0,0)):
         """
-        x, y, width, height - area where the camera will search for objects to draw
+        x, y, width, height - area where the camera will search for rectangles to draw
         viewportX, viewportY - position of viewport surface(viewport uses camera width height)
         viewportBackgroundColor - self explanatory
+
+        viewport is the area where the screen will be drawn for the player to see
         """
         self.x = x
         self.y = y
@@ -229,76 +228,73 @@ class Camera:
         self.width = width
         self.height = height
         
-        self.objects = []
-        self.objectsBeingDrawn = [] # entities are also in it
-
-        self.entities = []
+        self.rectangles = []
+        self.rectanglesDrawFunctions = {}
+        self.rectanglesAtCameraArea = []
         
         self.following = False
-        self.followObject = None
+        self.followRect = None
         
         self.viewportX = viewportX
         self.viewportY = viewportY
         self.viewportBackgroundColor = viewportBackgroundColor
         self.viewportSurface = pygame.Surface((self.width, self.height))
-
-        self.disabled = False
     
-    def addObject(self, object, drawFunction):
-        self.objects.append((object, drawFunction))
+    def addRectangle(self, rectangle: pygame.Rect, drawFunction):
+        self.rectangles.append(rectangle)
+        self.rectanglesDrawFunctions[str(rectangle)] = drawFunction
 
-    def draw(self, surface):
+    def draw(self, surface: pygame.Surface):
         surface.blit(self.viewportSurface, (self.viewportX, self.viewportY))
         self.viewportSurface.fill(self.viewportBackgroundColor)
-        objects = [*[entity[:2] for entity in self.entities], *self.objects]
 
-        self.objectsBeingDrawn = self.getObjectsAtCameraArea(objects.__reversed__())
-        for obj, drawFunc in self.objectsBeingDrawn:
+        self.rectanglesAtCameraArea = self.getRectanglesAtCameraArea(self.rectangles)
+        for rectangle in self.rectanglesAtCameraArea:
+            drawFunction = self.rectanglesDrawFunctions[str(rectangle)]
 
-            originalPosition = (obj.x, obj.y)
+            originalPosition = (rectangle.x, rectangle.y)
             
-            obj.x = obj.x-self.x
-            obj.y = obj.y-self.y
+            rectangle.x = rectangle.x-self.x
+            rectangle.y = rectangle.y-self.y
             
-            drawFunc(self.viewportSurface)
+            drawFunction(self.viewportSurface)
             
-            obj.x, obj.y = originalPosition
+            rectangle.x, rectangle.y = originalPosition
     
-    def toggleFollow(self, toggle=None):
+    def toggleFollow(self, toggle: bool=None):
         if toggle == None:
             toggle = not self.following
         
         self.following = toggle
     
-    def follow(self, obj=None):
+    def follow(self, rectangle: pygame.Rect=None):
         """
-        obj on center only!
-        
         use this function a single time and
         then put camera update function on main loop
         """
         self.following = True
-        if obj:
-            self.followObject = obj
+        if rectangle:
+            self.followRectangle = rectangle
     
     def unfollow(self):
         self.following = False
-        self.followObject = None
+        self.followRectangle = None
 
     def update(self):
-        if self.following and self.followObject != None:
-            # object.center-width.center = object at center of screen
-            self.x = self.followObject.x+self.followObject.width/2-self.width/2
-            self.y = self.followObject.y+self.followObject.height/2-self.height/2
+        if self.following and self.followRectangle != None:
+            # rectangle.center-camera.center/2 = rectangle at center of screen
+            self.x = self.followRectangle.centerx-self.width/2
+            self.y = self.followRectangle.centery-self.height/2
 
-    def getObjectsAtCameraArea(self, objects: list | list[tuple]):
-        output = []
-        for objectOrObjectTuple in objects:
-            object = objectOrObjectTuple
-            if type(objectOrObjectTuple) in [list,tuple]:
-                object = objectOrObjectTuple[0]
-            
-            if (object.x+object.width > self.x and object.x < self.x+self.width) and (object.y+object.height > self.y and object.y < self.y+self.height):
-                output.append(objectOrObjectTuple)
+    def isRectangleBeingDrawn(self, rectangle: pygame.Rect):
+        if (rectangle.x+rectangle.width > self.x and rectangle.x < self.x+self.width) and (rectangle.y+rectangle.height > self.y and rectangle.y < self.y+self.height):
+            return True
+        return False
 
-        return output
+    def getRectanglesAtCameraArea(self, rectangles: list[pygame.Rect]):
+        rectanglesAtCameraArea = []
+        for rectangle in rectangles:
+            if self.isRectangleBeingDrawn(rectangle):
+                rectanglesAtCameraArea.append(rectangle)
+
+        return rectanglesAtCameraArea
