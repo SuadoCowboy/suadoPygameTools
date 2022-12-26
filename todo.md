@@ -6,11 +6,9 @@
 (A) mesh class that can have multiple forms(MOST PERFORMANCE PLEASE)
 
 zoom system #future
-tilemap creator(another project maybe) #future
 implement physic controller functionality #future 
 implement screen controller for android platforms #future
-pathfinding maybe? #future
 text functions #future
 tk-like buttons #future 
-sound class maybe? #future
+sound class #future
 multiplayer and server stuff #future
