@@ -5,8 +5,6 @@
 
 (A) mesh class that can have multiple forms(MOST PERFORMANCE PLEASE)
 
-(A) Add a map loader function/class or something
-
 zoom system #future
 tilemap creator(another project maybe) #future
 implement physic controller functionality #future 
