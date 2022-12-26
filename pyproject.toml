@@ -1,18 +1,6 @@
-[project]
-name = "suadoPygameTools"
-version = "0.0.1"
-authors = [
-  { name="Suado Cowboy", email="luccacsg@gmail.com" },
+[build-system]
+requires = [
+  "setuptools>=54",
+  "wheel"
 ]
-description = "suadoPygameTools is a package with the purpose of helping to create simple 2d pygame games."
-readme = "README.md"
-requires-python = ">=3.9"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
-
-[project.urls]
-"Homepage" = "https://github.com/SuadoCowboy/pygameTools"
-"Bug Tracker" = "https://github.com/SuadoCowboy/pygameTools/issues"
+build-backend = "setuptools.build_meta"
