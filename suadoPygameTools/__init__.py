@@ -229,7 +229,7 @@ class Camera:
         self.height = height
         
         self.rectangles = []
-        self.rectanglesDrawFunctions = {}
+        self.rectanglesDrawFunctions = []
         self.rectanglesAtCameraArea = []
         
         self.following = False
@@ -242,7 +242,7 @@ class Camera:
     
     def addRectangle(self, rectangle: pygame.Rect, drawFunction):
         self.rectangles.append(rectangle)
-        self.rectanglesDrawFunctions[str(rectangle)] = drawFunction
+        self.rectanglesDrawFunctions.append(drawFunction)
 
     def draw(self, surface: pygame.Surface):
         surface.blit(self.viewportSurface, (self.viewportX, self.viewportY))
@@ -250,7 +250,7 @@ class Camera:
 
         self.rectanglesAtCameraArea = self.getRectanglesAtCameraArea(self.rectangles)
         for rectangle in self.rectanglesAtCameraArea:
-            drawFunction = self.rectanglesDrawFunctions[str(rectangle)]
+            drawFunction = self.rectanglesDrawFunctions[self.rectangles.index(rectangle)]
 
             originalPosition = (rectangle.x, rectangle.y)
             
