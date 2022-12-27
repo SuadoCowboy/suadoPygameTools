@@ -25,7 +25,7 @@ class SimpleRect(pygame.Rect):
         pygame.draw.rect(surface, self.color, self)
 
 class Player(pygame.Rect):
-    def __init__(self, centerx: float, centery: float, width: int=30, height: int=50):
+    def __init__(self, centerx: float, centery: float, width: int=16, height: int=24):
         super().__init__(centerx-width/2, centery-height/2, width, height)
         self.color = (255,255,255)
         self.velocity = 10
@@ -47,16 +47,19 @@ class Player(pygame.Rect):
 camera = pgTools.Camera(0,0,WIDTH,HEIGHT,0,0)
 player = Player(0,0)
 
-rowSize = int(WIDTH/50)
-columnSize = int(HEIGHT/50)
-rectSize = (50,50)
+rectSize = (32,32)
 
-print(f'{rowSize}x{columnSize} = {rowSize*columnSize} Amount of rectangles')
+rowSize = 128
+columnSize = 128
+
+print(f'{rowSize}x{columnSize} = {rowSize*columnSize} Possible amount of rectangles')
 
 for y in range(-rectSize[1]*int(columnSize/2), rectSize[1]*int(columnSize/2), rectSize[1]):
     for x in range(-rectSize[0]*int(rowSize/2), rectSize[0]*int(rowSize/2), rectSize[0]):
         rect = SimpleRect(x, y, *rectSize, pgTools.getRandomRGB())
         camera.addRectangle(rect, rect.draw)
+
+print(f'Amount of rectangles: {len(camera.rectangles)}')
 
 camera.addRectangle(player, player.draw)
 camera.follow(player)
@@ -79,7 +82,7 @@ while running:
     
     if keyInputHandler.keyPressedOnce(pygame.K_r):
         for rect in camera.rectangles:
-            if rect ==  player:
+            if rect == player:
                 continue
             
             rect.color = pgTools.getRandomRGB()
