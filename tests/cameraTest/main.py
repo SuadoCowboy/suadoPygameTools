@@ -4,7 +4,7 @@ import suadoPygameTools as pgTools
 # KEYS:
 # WASD - Movement
 # R - change rectangles color
-# F: prints out how many rectangles are being drawn on the screen
+# F - prints out how many rectangles are being drawn on the screen
 
 pygame.init()
 
