@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 def hasMethod(classObject: object, method: str):
     if method in classObject.__dir__() and str(type(classObject.__getattribute__(method))) == '<class \'method\'>':
@@ -158,6 +159,26 @@ def randomChance(winPercentage: int, percentage: int=100):
     if random.randint(0,percentage) <= winPercentage:
         return True
     return False
+
+def write_text(text: str, size: int=24, color: tuple=(255,255,255), antialias: bool=False, fontPath:  str=None):
+    if fontPath == None:
+        font = pygame.font.Font(fontPath, size)
+    else:
+        font = pygame.font.SysFont('', size)
+    return font.render(str(text), antialias, color)
+
+def play_sound(sound: str | pygame.mixer.Sound, volume: float=1, wait_end: bool=False, fade_ms: int=0):
+    if type(sound) != pygame.mixer.Sound:
+        sound = pygame.mixer.Sound(sound)
+        sound.set_volume(volume)
+    
+    sound.play(fade_ms=fade_ms)
+    if wait_end == False:
+        return
+    
+    t_start = time.time()
+    while time.time()-t_start < sound.get_length():
+            continue
 
 class KeyInputHandler:
     def __init__(self):
